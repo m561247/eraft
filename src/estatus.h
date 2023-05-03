@@ -17,12 +17,12 @@
  * @brief
  *
  */
-// enum class EStatus {
-//   kOk = 0,
-//   kNotFound = 1,
-//   kNotSupport = 2,
-//   kPutKeyToRocksDBErr = 3,
-// };
+enum class EStatus {
+  kOk = 0,
+  kNotFound = 1,
+  kNotSupport = 2,
+  kPutKeyToRocksDBErr = 3,
+};
 
 
 #endif
