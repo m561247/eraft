@@ -1,7 +1,7 @@
 #ifndef SRC_NETWORK_H_
 #define SRC_NETWORK_H_
 
-#include "estatus.h"
+#include "absl/status/status.h"
 #include "raft_node.h"
 #include "raft_server.h"
 
@@ -26,9 +26,9 @@ class Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus SendRequestVote(RaftServer*               raft,
+  virtual absl::Status SendRequestVote(RaftServer*               raft,
                                   RaftNode*                 target_node,
                                   eraftkv::RequestVoteReq*  req) = 0;
 
@@ -38,9 +38,9 @@ class Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus SendAppendEntries(RaftServer*                 raft,
+  virtual absl::Status SendAppendEntries(RaftServer*                 raft,
                                     RaftNode*                   target_node,
                                     eraftkv::AppendEntriesReq*  req) = 0;
 
@@ -50,9 +50,9 @@ class Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus SendSnapshot(RaftServer*            raft,
+  virtual absl::Status SendSnapshot(RaftServer*            raft,
                                RaftNode*              target_node,
                                eraftkv::SnapshotReq*  req) = 0;
 };

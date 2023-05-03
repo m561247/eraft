@@ -85,14 +85,14 @@ grpc::Status ERaftKvServer::ClusterConfigChange(
  * @brief
  *
  * @param interval
- * @return EStatus
+ * @return absl::Status
  */
-EStatus ERaftKvServer::InitTicker(int interval) {
+absl::Status ERaftKvServer::InitTicker(int interval) {
   // 1.set up raft_context_->RunCycle() run interval with periodic_caller_
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
-EStatus ERaftKvServer::BuildAndRunRpcServer() {
+absl::Status ERaftKvServer::BuildAndRunRpcServer() {
   // set up rpc
   ERaftKvServer service;
   grpc::EnableDefaultHealthCheckService(true);
@@ -102,5 +102,5 @@ EStatus ERaftKvServer::BuildAndRunRpcServer() {
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   server->Wait();
-  return EStatus::kOk;
+  return absl::OkStatus();
 }

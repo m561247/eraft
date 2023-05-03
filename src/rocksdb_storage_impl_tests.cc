@@ -19,7 +19,7 @@ TEST(RockDBStorageImplTest, PutGet) {
   std::string         testv = "testval";
   std::string         not_exist_key = "not_exist";
   RocksDBStorageImpl* kv_store = new RocksDBStorageImpl("/tmp/testdb");
-  ASSERT_EQ(kv_store->PutKV(testk, testv), EStatus::kOk);
+  ASSERT_EQ(kv_store->PutKV(testk, testv), absl::OkStatus());
   ASSERT_EQ(kv_store->GetKV(testk), testv);
   ASSERT_EQ(kv_store->GetKV(""), std::string(""));
   delete kv_store;

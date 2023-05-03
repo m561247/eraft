@@ -33,7 +33,7 @@ TEST(GrpcTest, TestInit) {
     eraftkv::RequestVoteReq        req;
     auto status = grpcimpl.SendRequestVote(raftServer, &raftNode, &req);
     int  res = 0;
-    if (EStatus::kOk == status)
+    if (absl::OkStatus() == status)
       res = 1;
     ASSERT_EQ(res, 1);
   } else {

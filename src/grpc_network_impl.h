@@ -27,9 +27,9 @@ class GRpcNetworkImpl : public Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SendRequestVote(RaftServer*              raft,
+  absl::Status SendRequestVote(RaftServer*              raft,
                           RaftNode*                target_node,
                           eraftkv::RequestVoteReq* req);
 
@@ -39,9 +39,9 @@ class GRpcNetworkImpl : public Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SendAppendEntries(RaftServer*                raft,
+  absl::Status SendAppendEntries(RaftServer*                raft,
                             RaftNode*                  target_node,
                             eraftkv::AppendEntriesReq* req);
 
@@ -51,9 +51,9 @@ class GRpcNetworkImpl : public Network {
    * @param raft
    * @param target_node
    * @param req
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SendSnapshot(RaftServer*           raft,
+  absl::Status SendSnapshot(RaftServer*           raft,
                        RaftNode*             target_node,
                        eraftkv::SnapshotReq* req);
 
@@ -61,9 +61,9 @@ class GRpcNetworkImpl : public Network {
    * @brief
    *
    * @param peers_address
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus InitPeerNodeConnections(std::map<int, std::string> peers_address);
+  absl::Status InitPeerNodeConnections(std::map<int, std::string> peers_address);
 
   /**
    * @brief Get the Peer Node Connection object

@@ -32,24 +32,24 @@ using grpc::Status;
  * @param raft
  * @param target_node
  * @param req
- * @return EStatus
+ * @return absl::Status
  */
-EStatus GRpcNetworkImpl::SendRequestVote(RaftServer*              raft,
+absl::Status GRpcNetworkImpl::SendRequestVote(RaftServer*              raft,
                                          RaftNode*                target_node,
                                          eraftkv::RequestVoteReq* req) {
   // 1.send request vote with grpc message to target_node
   ERaftKv::Stub* stub_ = GetPeerNodeConnection(target_node->id);
   if (stub_ == nullptr) {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   eraftkv::RequestVoteResp* resp = new eraftkv::RequestVoteResp;
   ClientContext             context;
   auto                      status = stub_->RequestVote(&context, *req, resp);
   // 2.call raft->HandleRequestVoteResp();
-  if (raft->HandleRequestVoteResp(target_node, resp) == EStatus::kOk) {
-    return EStatus::kOk;
+  if (raft->HandleRequestVoteResp(target_node, resp) == absl::OkStatus()) {
+    return absl::OkStatus();
   } else {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   // TO DO delete RequestVoteResp
 }
@@ -61,24 +61,24 @@ EStatus GRpcNetworkImpl::SendRequestVote(RaftServer*              raft,
  * @param raft
  * @param target_node
  * @param req
- * @return EStatus
+ * @return absl::Status
  */
-EStatus GRpcNetworkImpl::SendAppendEntries(RaftServer* raft,
+absl::Status GRpcNetworkImpl::SendAppendEntries(RaftServer* raft,
                                            RaftNode*   target_node,
                                            eraftkv::AppendEntriesReq* req) {
   // 1.send entries with grpc message to target_node
   ERaftKv::Stub* stub_ = GetPeerNodeConnection(target_node->id);
   if (stub_ == nullptr) {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   eraftkv::AppendEntriesResp* resp = new eraftkv::AppendEntriesResp;
   ClientContext               context;
   auto status = stub_->AppendEntries(&context, *req, resp);
   // 2.call raft->HandleAppendEntriesResp();
-  if (raft->HandleAppendEntriesResp(target_node, resp) == EStatus::kOk) {
-    return EStatus::kOk;
+  if (raft->HandleAppendEntriesResp(target_node, resp) == absl::OkStatus()) {
+    return absl::OkStatus();
   } else {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   // TO DO delete AppendEntriesResp
 }
@@ -89,24 +89,24 @@ EStatus GRpcNetworkImpl::SendAppendEntries(RaftServer* raft,
  * @param raft
  * @param target_node
  * @param req
- * @return EStatus
+ * @return absl::Status
  */
-EStatus GRpcNetworkImpl::SendSnapshot(RaftServer*           raft,
+absl::Status GRpcNetworkImpl::SendSnapshot(RaftServer*           raft,
                                       RaftNode*             target_node,
                                       eraftkv::SnapshotReq* req) {
   // 1.send snapshot to the target_node
   ERaftKv::Stub* stub_ = GetPeerNodeConnection(target_node->id);
   if (stub_ == nullptr) {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   eraftkv::SnapshotResp* resp = new eraftkv::SnapshotResp;
   ClientContext          context;
   auto                   status = stub_->Snapshot(&context, *req, resp);
   // 2.call raft->HandleSnapshotResp();
-  if (raft->HandleSnapshotResp(target_node, resp) == EStatus::kOk) {
-    return EStatus::kOk;
+  if (raft->HandleSnapshotResp(target_node, resp) == absl::OkStatus()) {
+    return absl::OkStatus();
   } else {
-    return EStatus::kNotFound;
+    return absl::Status(absl::StatusCode::kNotFound, "");
   }
   // TO DO delete SnapshotResp
 }
@@ -116,9 +116,9 @@ EStatus GRpcNetworkImpl::SendSnapshot(RaftServer*           raft,
  * @brief
  *
  * @param peers_address
- * @return EStatus
+ * @return absl::Status
  */
-EStatus GRpcNetworkImpl::InitPeerNodeConnections(
+absl::Status GRpcNetworkImpl::InitPeerNodeConnections(
     std::map<int, std::string> peers_address) {
   // parse peers address build connection stubs to peer
   for (auto itr : peers_address) {
@@ -127,7 +127,7 @@ EStatus GRpcNetworkImpl::InitPeerNodeConnections(
     auto stub_(ERaftKv::NewStub(chan_));
     this->peer_node_connections_[itr.first] = std::move(stub_);
   }
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**

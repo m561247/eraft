@@ -29,12 +29,12 @@ std::string RocksDBStorageImpl::GetNodeAddress(RaftServer* raft,
  * @param raft
  * @param id
  * @param address
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::SaveNodeAddress(RaftServer* raft,
+absl::Status RocksDBStorageImpl::SaveNodeAddress(RaftServer* raft,
                                             std::string id,
                                             std::string address) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -43,12 +43,12 @@ EStatus RocksDBStorageImpl::SaveNodeAddress(RaftServer* raft,
  * @param raft
  * @param snapshot_index
  * @param snapshot_term
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::ApplyLog(RaftServer* raft,
+absl::Status RocksDBStorageImpl::ApplyLog(RaftServer* raft,
                                      int64_t     snapshot_index,
                                      int64_t     snapshot_term) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -58,13 +58,13 @@ EStatus RocksDBStorageImpl::ApplyLog(RaftServer* raft,
  * @param node
  * @param offset
  * @param block
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::GetSnapshotBlock(RaftServer*             raft,
+absl::Status RocksDBStorageImpl::GetSnapshotBlock(RaftServer*             raft,
                                              RaftNode*               node,
                                              int64_t                 offset,
                                              eraftkv::SnapshotBlock* block) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -74,32 +74,32 @@ EStatus RocksDBStorageImpl::GetSnapshotBlock(RaftServer*             raft,
  * @param snapshot_index
  * @param offset
  * @param block
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::StoreSnapshotBlock(RaftServer* raft,
+absl::Status RocksDBStorageImpl::StoreSnapshotBlock(RaftServer* raft,
                                                int64_t     snapshot_index,
                                                int64_t     offset,
                                                eraftkv::SnapshotBlock* block) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
  * @param raft
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::ClearSnapshot(RaftServer* raft) {
-  return EStatus::kOk;
+absl::Status RocksDBStorageImpl::ClearSnapshot(RaftServer* raft) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::CreateDBSnapshot() {
-  return EStatus::kOk;
+absl::Status RocksDBStorageImpl::CreateDBSnapshot() {
+  return absl::OkStatus();
 }
 
 /**
@@ -108,12 +108,12 @@ EStatus RocksDBStorageImpl::CreateDBSnapshot() {
  * @param raft
  * @param term
  * @param vote
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::SaveRaftMeta(RaftServer* raft,
+absl::Status RocksDBStorageImpl::SaveRaftMeta(RaftServer* raft,
                                          int64_t     term,
                                          int64_t     vote) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -122,13 +122,13 @@ EStatus RocksDBStorageImpl::SaveRaftMeta(RaftServer* raft,
  * @param raft
  * @param term
  * @param vote
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::ReadRaftMeta(RaftServer* raft,
+absl::Status RocksDBStorageImpl::ReadRaftMeta(RaftServer* raft,
                                          int64_t*    term,
                                          int64_t*    vote) {
 
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 
@@ -137,11 +137,11 @@ EStatus RocksDBStorageImpl::ReadRaftMeta(RaftServer* raft,
  *
  * @param key
  * @param val
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBStorageImpl::PutKV(std::string key, std::string val) {
+absl::Status RocksDBStorageImpl::PutKV(std::string key, std::string val) {
   auto status = kv_db_->Put(rocksdb::WriteOptions(), key, val);
-  return status.ok() ? EStatus::kOk : EStatus::kPutKeyToRocksDBErr;
+  return status.ok() ? absl::OkStatus() : absl::Status(absl::StatusCode::kPutKeyToRocksDBErr, "");
 }
 
 /**

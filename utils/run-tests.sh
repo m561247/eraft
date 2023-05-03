@@ -10,4 +10,3 @@ set -xe
 /eraft/build/google_example_banchmark
 /eraft/build/log_entry_cache_benchmark
 /eraft/build/grpc_network_impl_test
-/eraft/build/eraftkv

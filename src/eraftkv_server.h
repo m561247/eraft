@@ -18,9 +18,9 @@
 #include <memory>
 #include <string>
 
+#include "absl/status/status.h"
 #include "eraftkv.grpc.pb.h"
 #include "eraftkv.pb.h"
-#include "estatus.h"
 #include "raft_server.h"
 
 using eraftkv::ERaftKv;
@@ -124,16 +124,16 @@ class ERaftKvServer : public eraftkv::ERaftKv::Service {
    * @brief
    *
    * @param interval
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus InitTicker(int interval);
+  absl::Status InitTicker(int interval);
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BuildAndRunRpcServer();
+  absl::Status BuildAndRunRpcServer();
 
   /**
    * @brief

@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <string>
 
-#include "estatus.h"
+#include "absl/status/status.h"
 #include "raft_server.h"
 
 /**
@@ -171,18 +171,18 @@ class ERaftMetaServer : public grpc::EraftKv::Service {
   /**
    * @brief BuildAndRunRpcServer make new rpc server and run
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BuildAndRunRpcServer() {
-    return EStatus::kOk;
+  absl::Status BuildAndRunRpcServer() {
+    return absl::OkStatus();
   }
   /**
    * @brief RunRaftCycle raft loop
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus RunRaftCycle() {
-    return EStatus::kOk;
+  absl::Status RunRaftCycle() {
+    return absl::OkStatus();
   }
 
  private:

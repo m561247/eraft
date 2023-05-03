@@ -18,17 +18,17 @@ RocksDBLogStorageImpl::RocksDBLogStorageImpl()
   s_status_.last_log_index = 0;
 }
 
-EStatus RocksDBLogStorageImpl::Reset(int64_t index, int64_t term) {
-  return EStatus::kOk;
+absl::Status RocksDBLogStorageImpl::Reset(int64_t index, int64_t term) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief init log db when cluster init
  *
  * @param logdb_path
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBLogStorageImpl::Open(std::string logdb_path,
+absl::Status RocksDBLogStorageImpl::Open(std::string logdb_path,
                                     int64_t     prev_log_term,
                                     int64_t     prev_log_index) {
   // init master log db status
@@ -36,7 +36,7 @@ EStatus RocksDBLogStorageImpl::Open(std::string logdb_path,
   m_status_.prev_log_index = prev_log_index;
   m_status_.prev_log_term = prev_log_term;
 
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -52,9 +52,9 @@ RocksDBLogStorageImpl::~RocksDBLogStorageImpl() {
  * @brief
  *
  * @param ety
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBLogStorageImpl::Append(eraftkv::Entry* ety) {
+absl::Status RocksDBLogStorageImpl::Append(eraftkv::Entry* ety) {
   if (standby_log_db_ != nullptr) {
     // gnerator ety index
     int64_t ety_index = this->s_status_.last_log_index + 1;
@@ -89,32 +89,32 @@ EStatus RocksDBLogStorageImpl::Append(eraftkv::Entry* ety) {
     // add to cache
     log_cache_->Append(ety);
   }
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
-EStatus Reset(int64_t index, int64_t term) {
+absl::Status Reset(int64_t index, int64_t term) {
 
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
  * @param first_index
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBLogStorageImpl::EraseBefore(int64_t first_index) {
-  return EStatus::kOk;
+absl::Status RocksDBLogStorageImpl::EraseBefore(int64_t first_index) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
  * @param from_index
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RocksDBLogStorageImpl::EraseAfter(int64_t from_index) {
-  return EStatus::kOk;
+absl::Status RocksDBLogStorageImpl::EraseAfter(int64_t from_index) {
+  return absl::OkStatus();
 }
 
 /**

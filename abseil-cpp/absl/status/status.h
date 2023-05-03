@@ -269,7 +269,9 @@ enum class StatusCode : int {
   // codes with `switch()` statements to *not* simply enumerate all possible
   // values, but instead provide a "default:" case. Providing such a default
   // case ensures that code will compile when new codes are added.
-  kDoNotUseReservedForFutureExpansionUseDefaultInSwitchInstead_ = 20
+  kDoNotUseReservedForFutureExpansionUseDefaultInSwitchInstead_ = 20,
+  kNotSupport = 22,
+  kPutKeyToRocksDBErr = 23
 };
 
 // StatusCodeToString()

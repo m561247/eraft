@@ -15,8 +15,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "absl/status/status.h"
 #include "eraftkv.pb.h"
-#include "estatus.h"
 #include "raft_config.h"
 #include "raft_node.h"
 
@@ -76,16 +76,16 @@ class RaftServer {
    *
    * @param term
    * @param vote
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SaveMetaData(int64_t term, int64_t vote);
+  absl::Status SaveMetaData(int64_t term, int64_t vote);
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ReadMetaData();
+  absl::Status ReadMetaData();
 
   /**
    * @brief
@@ -100,30 +100,30 @@ class RaftServer {
    * @brief
    *
    * @param node
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus RemoveNode(RaftNode* node);
+  absl::Status RemoveNode(RaftNode* node);
 
   /**
    * @brief raft core cycle
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus RunCycle();
+  absl::Status RunCycle();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ApplyEntries();
+  absl::Status ApplyEntries();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SendAppendEntries();
+  absl::Status SendAppendEntries();
 
   /**
    * @brief
@@ -131,9 +131,9 @@ class RaftServer {
    * @param from_node
    * @param req
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleRequestVoteReq(RaftNode*                 from_node,
+  absl::Status HandleRequestVoteReq(RaftNode*                 from_node,
                                eraftkv::RequestVoteReq*  req,
                                eraftkv::RequestVoteResp* resp);
   /**
@@ -141,9 +141,9 @@ class RaftServer {
    *
    * @param from_node
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleRequestVoteResp(RaftNode*                 from_node,
+  absl::Status HandleRequestVoteResp(RaftNode*                 from_node,
                                 eraftkv::RequestVoteResp* resp);
 
   /**
@@ -152,9 +152,9 @@ class RaftServer {
    * @param from_node
    * @param req
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleAppendEntriesReq(RaftNode*                   from_node,
+  absl::Status HandleAppendEntriesReq(RaftNode*                   from_node,
                                  eraftkv::AppendEntriesReq*  req,
                                  eraftkv::AppendEntriesResp* resp);
   /**
@@ -162,9 +162,9 @@ class RaftServer {
    *
    * @param from_node
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleAppendEntriesResp(RaftNode*                   from_node,
+  absl::Status HandleAppendEntriesResp(RaftNode*                   from_node,
                                   eraftkv::AppendEntriesResp* resp);
 
   /**
@@ -173,9 +173,9 @@ class RaftServer {
    * @param from_node
    * @param req
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleSnapshotReq(RaftNode*              from_node,
+  absl::Status HandleSnapshotReq(RaftNode*              from_node,
                             eraftkv::SnapshotReq*  req,
                             eraftkv::SnapshotResp* resp);
 
@@ -185,9 +185,9 @@ class RaftServer {
    *
    * @param from_node
    * @param resp
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleSnapshotResp(RaftNode* from_node, eraftkv::SnapshotResp* resp);
+  absl::Status HandleSnapshotResp(RaftNode* from_node, eraftkv::SnapshotResp* resp);
 
   /**
    * @brief
@@ -195,9 +195,9 @@ class RaftServer {
    * @param from_node
    * @param ety
    * @param ety_index
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus HandleApplyConfigChange(RaftNode*       from_node,
+  absl::Status HandleApplyConfigChange(RaftNode*       from_node,
                                   eraftkv::Entry* ety,
                                   int64_t         ety_index);
 
@@ -205,58 +205,58 @@ class RaftServer {
    * @brief
    *
    * @param ety
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ProposeEntry(eraftkv::Entry* ety);
+  absl::Status ProposeEntry(eraftkv::Entry* ety);
 
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BecomeLeader();
+  absl::Status BecomeLeader();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BecomeFollower();
+  absl::Status BecomeFollower();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BecomeCandidate();
+  absl::Status BecomeCandidate();
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BecomePreCandidate();
+  absl::Status BecomePreCandidate();
 
   /**
    * @brief
    *
    * @param is_prevote
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ElectionStart(bool is_prevote);
+  absl::Status ElectionStart(bool is_prevote);
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BeginSnapshot();
+  absl::Status BeginSnapshot();
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus EndSnapshot();
+  absl::Status EndSnapshot();
   /**
    * @brief
    *
@@ -281,33 +281,33 @@ class RaftServer {
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus RestoreSnapshotAfterRestart();
+  absl::Status RestoreSnapshotAfterRestart();
 
   /**
    * @brief
    *
    * @param last_included_term
    * @param last_included_index
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus BeginLoadSnapshot(int64_t last_included_term,
+  absl::Status BeginLoadSnapshot(int64_t last_included_term,
                             int64_t last_included_index);
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus EndLoadSnapshot();
+  absl::Status EndLoadSnapshot();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ProposeReadReq();
+  absl::Status ProposeReadReq();
 
   /**
    * @brief Get the Logs Count Can Snapshot object
@@ -319,24 +319,24 @@ class RaftServer {
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus RestoreLog();
+  absl::Status RestoreLog();
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ResetRandomElectionTimeout();
+  absl::Status ResetRandomElectionTimeout();
 
   /**
    * @brief
    *
    * @param raft_config
-   * @return EStatus
+   * @return absl::Status
    */
-  static EStatus RunMainLoop(RaftConfig raft_config);
+  static absl::Status RunMainLoop(RaftConfig raft_config);
 
  private:
   /**

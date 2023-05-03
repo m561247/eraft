@@ -30,19 +30,19 @@ RaftServer::RaftServer(RaftConfig raft_config)
   // }
 }
 
-EStatus RaftServer::ResetRandomElectionTimeout() {
+absl::Status RaftServer::ResetRandomElectionTimeout() {
   // make rand election timeout in (election_timeout, 2 * election_timout)
   auto rand_tick =
       RandomNumber::Between(base_election_timeout_, 2 * base_election_timeout_);
   election_timeout_ = rand_tick;
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
-EStatus RaftServer::RunMainLoop(RaftConfig raft_config) {
+absl::Status RaftServer::RunMainLoop(RaftConfig raft_config) {
   RaftServer* svr = new RaftServer(raft_config);
   std::thread th(&RaftServer::RunCycle, svr);
   th.detach();
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -64,19 +64,19 @@ std::vector<eraftkv::Entry*> RaftServer::GetEntriesToBeSend(RaftNode* node,
  *
  * @param term
  * @param vote
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::SaveMetaData(int64_t term, int64_t vote) {
-  return EStatus::kOk;
+absl::Status RaftServer::SaveMetaData(int64_t term, int64_t vote) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::ReadMetaData() {
-  return EStatus::kOk;
+absl::Status RaftServer::ReadMetaData() {
+  return absl::OkStatus();
 }
 
 /**
@@ -94,18 +94,18 @@ RaftNode* RaftServer::JoinNode(int64_t id, bool is_self) {
  * @brief
  *
  * @param node
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::RemoveNode(RaftNode* node) {
-  return EStatus::kOk;
+absl::Status RaftServer::RemoveNode(RaftNode* node) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief raft core cycle
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::RunCycle() {
+absl::Status RaftServer::RunCycle() {
   ResetRandomElectionTimeout();
   while (true) {
     heartbeat_tick_count_ += 1;
@@ -122,24 +122,24 @@ EStatus RaftServer::RunCycle() {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::SendAppendEntries() {
+absl::Status RaftServer::SendAppendEntries() {
 
   // only leader can set append entries
   if (this->role_ != NodeRaftRoleEnum::Leader) {
-    return EStatus::kNotSupport;
+    return absl::Status(absl::StatusCode::kNotSupport, "");
   }
 
   for (auto& node : this->nodes_) {
     if (node->id == this->id_) {
-      return EStatus::kNotSupport;
+      return absl::Status(absl::StatusCode::kNotSupport, "");
     }
 
     auto prev_log_index = node->next_log_index - 1;
@@ -149,16 +149,16 @@ EStatus RaftServer::SendAppendEntries() {
     }
   }
 
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::ApplyEntries() {
-  return EStatus::kOk;
+absl::Status RaftServer::ApplyEntries() {
+  return absl::OkStatus();
 }
 
 /**
@@ -167,12 +167,12 @@ EStatus RaftServer::ApplyEntries() {
  * @param from_node
  * @param req
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleRequestVoteReq(RaftNode*                 from_node,
+absl::Status RaftServer::HandleRequestVoteReq(RaftNode*                 from_node,
                                          eraftkv::RequestVoteReq*  req,
                                          eraftkv::RequestVoteResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -180,11 +180,11 @@ EStatus RaftServer::HandleRequestVoteReq(RaftNode*                 from_node,
  *
  * @param from_node
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleRequestVoteResp(RaftNode*                 from_node,
+absl::Status RaftServer::HandleRequestVoteResp(RaftNode*                 from_node,
                                           eraftkv::RequestVoteResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -193,12 +193,12 @@ EStatus RaftServer::HandleRequestVoteResp(RaftNode*                 from_node,
  * @param from_node
  * @param req
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleAppendEntriesReq(RaftNode*                  from_node,
+absl::Status RaftServer::HandleAppendEntriesReq(RaftNode*                  from_node,
                                            eraftkv::AppendEntriesReq* req,
                                            eraftkv::AppendEntriesResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -206,11 +206,11 @@ EStatus RaftServer::HandleAppendEntriesReq(RaftNode*                  from_node,
  *
  * @param from_node
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleAppendEntriesResp(RaftNode* from_node,
+absl::Status RaftServer::HandleAppendEntriesResp(RaftNode* from_node,
                                             eraftkv::AppendEntriesResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 
@@ -220,12 +220,12 @@ EStatus RaftServer::HandleAppendEntriesResp(RaftNode* from_node,
  * @param from_node
  * @param req
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleSnapshotReq(RaftNode*              from_node,
+absl::Status RaftServer::HandleSnapshotReq(RaftNode*              from_node,
                                       eraftkv::SnapshotReq*  req,
                                       eraftkv::SnapshotResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 
@@ -234,11 +234,11 @@ EStatus RaftServer::HandleSnapshotReq(RaftNode*              from_node,
  *
  * @param from_node
  * @param resp
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleSnapshotResp(RaftNode*              from_node,
+absl::Status RaftServer::HandleSnapshotResp(RaftNode*              from_node,
                                        eraftkv::SnapshotResp* resp) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
@@ -247,87 +247,87 @@ EStatus RaftServer::HandleSnapshotResp(RaftNode*              from_node,
  * @param from_node
  * @param ety
  * @param ety_index
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::HandleApplyConfigChange(RaftNode*       from_node,
+absl::Status RaftServer::HandleApplyConfigChange(RaftNode*       from_node,
                                             eraftkv::Entry* ety,
                                             int64_t         ety_index) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
  * @param ety
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::ProposeEntry(eraftkv::Entry* ety) {
-  return EStatus::kOk;
+absl::Status RaftServer::ProposeEntry(eraftkv::Entry* ety) {
+  return absl::OkStatus();
 }
 
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BecomeLeader() {
-  return EStatus::kOk;
+absl::Status RaftServer::BecomeLeader() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BecomeFollower() {
-  return EStatus::kOk;
+absl::Status RaftServer::BecomeFollower() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BecomeCandidate() {
-  return EStatus::kOk;
+absl::Status RaftServer::BecomeCandidate() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BecomePreCandidate() {
-  return EStatus::kOk;
+absl::Status RaftServer::BecomePreCandidate() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
  * @param is_prevote
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::ElectionStart(bool is_prevote) {
-  return EStatus::kOk;
+absl::Status RaftServer::ElectionStart(bool is_prevote) {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BeginSnapshot() {
-  return EStatus::kOk;
+absl::Status RaftServer::BeginSnapshot() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::EndSnapshot() {
-  return EStatus::kOk;
+absl::Status RaftServer::EndSnapshot() {
+  return absl::OkStatus();
 }
 
 /**
@@ -361,10 +361,10 @@ int64_t RaftServer::GetFirstEntryIdx() {
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::RestoreSnapshotAfterRestart() {
-  return EStatus::kOk;
+absl::Status RaftServer::RestoreSnapshotAfterRestart() {
+  return absl::OkStatus();
 }
 
 /**
@@ -372,29 +372,29 @@ EStatus RaftServer::RestoreSnapshotAfterRestart() {
  *
  * @param last_included_term
  * @param last_included_index
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::BeginLoadSnapshot(int64_t last_included_term,
+absl::Status RaftServer::BeginLoadSnapshot(int64_t last_included_term,
                                       int64_t last_included_index) {
-  return EStatus::kOk;
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::EndLoadSnapshot() {
-  return EStatus::kOk;
+absl::Status RaftServer::EndLoadSnapshot() {
+  return absl::OkStatus();
 }
 
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::ProposeReadReq() {
-  return EStatus::kOk;
+absl::Status RaftServer::ProposeReadReq() {
+  return absl::OkStatus();
 }
 
 /**
@@ -409,8 +409,8 @@ int64_t RaftServer::GetLogsCountCanSnapshot() {
 /**
  * @brief
  *
- * @return EStatus
+ * @return absl::Status
  */
-EStatus RaftServer::RestoreLog() {
-  return EStatus::kOk;
+absl::Status RaftServer::RestoreLog() {
+  return absl::OkStatus();
 }

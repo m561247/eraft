@@ -84,6 +84,16 @@ mark_as_advanced(
 
 
 ################################################
+# abseil
+#
+add_subdirectory(abseil-cpp)
+include_directories(abseil-cpp)
+#
+#
+################################################
+
+
+################################################
 # grpc begin
 #
 
@@ -111,13 +121,6 @@ include_directories(${GFLAGS_INCLUDE_DIRS})
 # grpc end
 ################################################
 
-################################################
-# abseil
-#
-add_subdirectory(abseil-cpp)
-#
-#
-################################################
 
 ################################################
 # gtest begin
@@ -162,6 +165,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
     gRPC::grpc++
     ${Protobuf_LIBRARY}
     stdc++fs
+    absl::status
 )
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${eraftkv_INCLUDE_DIR})
 
@@ -172,6 +176,7 @@ target_link_libraries(gtest_example_tests PUBLIC
     pthread
     gRPC::grpc++
     ${Protobuf_LIBRARY}
+    absl::status
 )
 target_include_directories(gtest_example_tests PUBLIC ${eraftkv_INCLUDE_DIR})
 
@@ -188,6 +193,7 @@ target_link_libraries(eraftkv_server_test PUBLIC
     pthread
     gRPC::grpc++
     ${Protobuf_LIBRARY}
+    absl::status
 )
 
 add_executable(rocksdb_storage_impl_tests src/util.cc src/rocksdb_storage_impl.cc src/rocksdb_storage_impl_tests.cc )
@@ -197,6 +203,7 @@ target_link_libraries(rocksdb_storage_impl_tests PUBLIC
     gRPC::grpc++
     pthread
     stdc++fs
+    absl::status
 )
 
 add_executable(log_entry_cache_tests src/log_entry_cache_tests.cc src/log_entry_cache.cc src/eraftkv.pb.cc)
@@ -205,11 +212,13 @@ target_link_libraries(log_entry_cache_tests PUBLIC
     pthread
     gRPC::grpc++
     ${Protobuf_LIBRARY}
+    absl::status
 )
 
 add_executable(google_example_banchmark src/google_example_benchmark.cc)
 target_link_libraries(google_example_banchmark PUBLIC
     benchmark::benchmark
+    absl::status
 )
 
 add_executable(log_entry_cache_benchmark src/log_entry_cache_benchmark.cc src/log_entry_cache.cc src/eraftkv.pb.cc)
@@ -218,6 +227,7 @@ target_link_libraries(log_entry_cache_benchmark PUBLIC
     pthread
     gRPC::grpc++
     ${Protobuf_LIBRARY}
+    absl::status
 )
 
 add_executable(grpc_network_impl_test 
@@ -233,4 +243,5 @@ target_link_libraries(grpc_network_impl_test PUBLIC
     gRPC::grpc++
     pthread
     ${Protobuf_LIBRARY}
+    absl::status
 )

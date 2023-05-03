@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "absl/status/status.h"
 #include "eraftkv.pb.h"
-#include "estatus.h"
 /**
  * @brief
  *
@@ -22,25 +22,25 @@ class LogStore {
    * @brief Append add new entries
    *
    * @param ety
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus Append(eraftkv::Entry* ety) = 0;
+  virtual absl::Status Append(eraftkv::Entry* ety) = 0;
 
   /**
    * @brief EraseBefore erase all entries before the given index
    *
    * @param first_index
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus EraseBefore(int64_t first_index) = 0;
+  virtual absl::Status EraseBefore(int64_t first_index) = 0;
 
   /**
    * @brief EraseAfter erase all entries after the given index
    *
    * @param from_index
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus EraseAfter(int64_t from_index) = 0;
+  virtual absl::Status EraseAfter(int64_t from_index) = 0;
 
   /**
    * @brief Get get the given index entry

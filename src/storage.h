@@ -2,7 +2,7 @@
 #define SRC_STORAGE_H_
 #include <string>
 
-#include "estatus.h"
+#include "absl/status/status.h"
 #include "raft_server.h"
 
 class RaftServer;
@@ -35,9 +35,9 @@ class Storage {
    * @param raft
    * @param id
    * @param address
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus SaveNodeAddress(RaftServer* raft,
+  virtual absl::Status SaveNodeAddress(RaftServer* raft,
                                   std::string id,
                                   std::string address) = 0;
 
@@ -47,9 +47,9 @@ class Storage {
    * @param raft
    * @param snapshot_index
    * @param snapshot_term
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus ApplyLog(RaftServer* raft,
+  virtual absl::Status ApplyLog(RaftServer* raft,
                            int64_t     snapshot_index,
                            int64_t     snapshot_term) = 0;
 
@@ -60,9 +60,9 @@ class Storage {
    * @param node
    * @param offset
    * @param block
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus GetSnapshotBlock(RaftServer*             raft,
+  virtual absl::Status GetSnapshotBlock(RaftServer*             raft,
                                    RaftNode*               node,
                                    int64_t                 offset,
                                    eraftkv::SnapshotBlock* block) = 0;
@@ -74,9 +74,9 @@ class Storage {
    * @param snapshot_index
    * @param offset
    * @param block
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus StoreSnapshotBlock(RaftServer*             raft,
+  virtual absl::Status StoreSnapshotBlock(RaftServer*             raft,
                                      int64_t                 snapshot_index,
                                      int64_t                 offset,
                                      eraftkv::SnapshotBlock* block) = 0;
@@ -85,16 +85,16 @@ class Storage {
    * @brief
    *
    * @param raft
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus ClearSnapshot(RaftServer* raft) = 0;
+  virtual absl::Status ClearSnapshot(RaftServer* raft) = 0;
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus CreateDBSnapshot() = 0;
+  virtual absl::Status CreateDBSnapshot() = 0;
 
   /**
    * @brief
@@ -102,9 +102,9 @@ class Storage {
    * @param raft
    * @param term
    * @param vote
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus SaveRaftMeta(RaftServer* raft,
+  virtual absl::Status SaveRaftMeta(RaftServer* raft,
                                int64_t     term,
                                int64_t     vote) = 0;
 
@@ -114,9 +114,9 @@ class Storage {
    * @param raft
    * @param term
    * @param vote
-   * @return EStatus
+   * @return absl::Status
    */
-  virtual EStatus ReadRaftMeta(RaftServer* raft,
+  virtual absl::Status ReadRaftMeta(RaftServer* raft,
                                int64_t*    term,
                                int64_t*    vote) = 0;
 };

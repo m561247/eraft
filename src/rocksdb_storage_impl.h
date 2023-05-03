@@ -40,9 +40,9 @@ class RocksDBStorageImpl : public Storage {
    * @param raft
    * @param id
    * @param address
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus SaveNodeAddress(RaftServer* raft,
+  absl::Status SaveNodeAddress(RaftServer* raft,
                           std::string id,
                           std::string address);
 
@@ -52,9 +52,9 @@ class RocksDBStorageImpl : public Storage {
    * @param raft
    * @param snapshot_index
    * @param snapshot_term
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ApplyLog(RaftServer* raft,
+  absl::Status ApplyLog(RaftServer* raft,
                    int64_t     snapshot_index,
                    int64_t     snapshot_term);
 
@@ -65,9 +65,9 @@ class RocksDBStorageImpl : public Storage {
    * @param node
    * @param offset
    * @param block
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus GetSnapshotBlock(RaftServer*             raft,
+  absl::Status GetSnapshotBlock(RaftServer*             raft,
                            RaftNode*               node,
                            int64_t                 offset,
                            eraftkv::SnapshotBlock* block);
@@ -79,9 +79,9 @@ class RocksDBStorageImpl : public Storage {
    * @param snapshot_index
    * @param offset
    * @param block
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus StoreSnapshotBlock(RaftServer*             raft,
+  absl::Status StoreSnapshotBlock(RaftServer*             raft,
                              int64_t                 snapshot_index,
                              int64_t                 offset,
                              eraftkv::SnapshotBlock* block);
@@ -90,26 +90,16 @@ class RocksDBStorageImpl : public Storage {
    * @brief
    *
    * @param raft
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ClearSnapshot(RaftServer* raft);
+  absl::Status ClearSnapshot(RaftServer* raft);
 
   /**
    * @brief
    *
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus CreateDBSnapshot();
-
-  /**
-   * @brief
-   *
-   * @param raft
-   * @param term
-   * @param vote
-   * @return EStatus
-   */
-  EStatus SaveRaftMeta(RaftServer* raft, int64_t term, int64_t vote);
+  absl::Status CreateDBSnapshot();
 
   /**
    * @brief
@@ -117,9 +107,19 @@ class RocksDBStorageImpl : public Storage {
    * @param raft
    * @param term
    * @param vote
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus ReadRaftMeta(RaftServer* raft, int64_t* term, int64_t* vote);
+  absl::Status SaveRaftMeta(RaftServer* raft, int64_t term, int64_t vote);
+
+  /**
+   * @brief
+   *
+   * @param raft
+   * @param term
+   * @param vote
+   * @return absl::Status
+   */
+  absl::Status ReadRaftMeta(RaftServer* raft, int64_t* term, int64_t* vote);
 
 
   /**
@@ -127,9 +127,9 @@ class RocksDBStorageImpl : public Storage {
    *
    * @param key
    * @param val
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus PutKV(std::string key, std::string val);
+  absl::Status PutKV(std::string key, std::string val);
 
   /**
    * @brief
@@ -197,9 +197,9 @@ class RocksDBLogStorageImpl : public LogStore {
   ~RocksDBLogStorageImpl();
 
 
-  EStatus Reset(int64_t index, int64_t term);
+  absl::Status Reset(int64_t index, int64_t term);
 
-  EStatus Open(std::string logdb_path,
+  absl::Status Open(std::string logdb_path,
                int64_t     pre_log_term,
                int64_t     pre_log_index);
 
@@ -207,25 +207,25 @@ class RocksDBLogStorageImpl : public LogStore {
    * @brief
    *
    * @param ety
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus Append(eraftkv::Entry* ety);
+  absl::Status Append(eraftkv::Entry* ety);
 
   /**
    * @brief
    *
    * @param first_index
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus EraseBefore(int64_t first_index);
+  absl::Status EraseBefore(int64_t first_index);
 
   /**
    * @brief
    *
    * @param from_index
-   * @return EStatus
+   * @return absl::Status
    */
-  EStatus EraseAfter(int64_t from_index);
+  absl::Status EraseAfter(int64_t from_index);
 
   /**
    * @brief
