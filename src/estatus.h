@@ -12,16 +12,17 @@
 #ifndef ESTATUS_H_
 #define ESTATUS_H_
 #include <string>
-
+#include "abseil-cpp/absl/status/status.h"
 /**
  * @brief
  *
  */
-enum class EStatus {
-  kOk = 0,
-  kNotFound = 1,
-  kNotSupport = 2,
-  kPutKeyToRocksDBErr = 3,
-};
+// enum class EStatus {
+//   kOk = 0,
+//   kNotFound = 1,
+//   kNotSupport = 2,
+//   kPutKeyToRocksDBErr = 3,
+// };
+
 
 #endif
