@@ -169,6 +169,7 @@ add_executable(eraftkv_server_test
     src/log_storage_impl.cc
     src/rocksdb_storage_impl.cc
     src/log_entry_cache.cc
+    src/grpc_network_impl.cc
 )
 target_link_libraries(eraftkv_server_test PUBLIC
     ${GTEST_LIBRARIES}
@@ -233,5 +234,16 @@ target_link_libraries(grpc_network_impl_test PUBLIC
     gRPC::grpc++
     pthread
     rocksdb
+    ${Protobuf_LIBRARY}
+)
+
+# eraft-ctl
+add_executable(eraftkv-ctl 
+    src/eraftkv_ctl.cc
+    src/eraftkv.pb.cc 
+    src/eraftkv.grpc.pb.cc
+    )
+target_link_libraries(eraftkv-ctl PUBLIC
+    gRPC::grpc++
     ${Protobuf_LIBRARY}
 )

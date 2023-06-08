@@ -80,33 +80,115 @@ EStatus RocksDBStorageImpl::ApplyLog(RaftServer* raft,
   auto etys =
       raft->log_store_->Gets(raft->last_applied_idx_, raft->commit_idx_);
   for (auto ety : etys) {
-    eraftkv::KvOpPair* op_pair = new eraftkv::KvOpPair();
-    op_pair->ParseFromString(ety->data());
-    switch (op_pair->op_type()) {
-      case eraftkv::ClientOpType::Put: {
-        if (PutKV(op_pair->key(), op_pair->value()) == EStatus::kOk) {
-          raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
-          raft->last_applied_idx_ = ety->id();
-          if (raft->role_ == NodeRaftRoleEnum::Leader) {
-            std::mutex map_mutex;
-            {
-              std::lock_guard<std::mutex> lg(map_mutex);
-              if(ERaftKvServer::ready_cond_vars_[op_pair->op_count()] != nullptr) {
-                ERaftKvServer::ready_cond_vars_[op_pair->op_count()]
-                    ->notify_one();
+    switch (ety->e_type()) {
+      case eraftkv::EntryType::Normal: {
+        eraftkv::KvOpPair* op_pair = new eraftkv::KvOpPair();
+        op_pair->ParseFromString(ety->data());
+        switch (op_pair->op_type()) {
+          case eraftkv::ClientOpType::Put: {
+            if (PutKV(op_pair->key(), op_pair->value()) == EStatus::kOk) {
+              raft->log_store_->PersisLogMetaState(raft->commit_idx_,
+                                                   ety->id());
+              raft->last_applied_idx_ = ety->id();
+              if (raft->role_ == NodeRaftRoleEnum::Leader) {
+                std::mutex map_mutex;
+                {
+                  std::lock_guard<std::mutex> lg(map_mutex);
+                  if (ERaftKvServer::ready_cond_vars_[op_pair->op_count()] !=
+                      nullptr) {
+                    ERaftKvServer::ready_cond_vars_[op_pair->op_count()]
+                        ->notify_one();
+                  }
+                }
               }
             }
+            break;
+          }
+          default: {
+            raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
+            raft->last_applied_idx_ = ety->id();
+            break;
           }
         }
+        delete op_pair;
         break;
       }
-      default: {
-        raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
-        raft->last_applied_idx_ = ety->id();
+
+      case eraftkv::EntryType::ConfChange: {
+        eraftkv::ClusterConfigChangeReq* conf_change_req =
+            new eraftkv::ClusterConfigChangeReq();
+        conf_change_req->ParseFromString(ety->data());
+        switch (conf_change_req->change_type()) {
+          case eraftkv::ClusterConfigChangeType::AddServer: {
+            raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
+            raft->last_applied_idx_ = ety->id();
+            if (conf_change_req->server().id() != raft->id_) {
+              RaftNode* new_node =
+                  new RaftNode(conf_change_req->server().id(),
+                               NodeStateEnum::Running,
+                               0,
+                               ety->id(),
+                               conf_change_req->server().address());
+              raft->net_->InsertPeerNodeConnection(
+                  conf_change_req->server().id(),
+                  conf_change_req->server().address());
+              bool node_exist = false;
+              for (auto node : raft->nodes_) {
+                if (node->id == new_node->id) {
+                  node_exist = true;
+                  // reinit node
+                  if (node->node_state == NodeStateEnum::Down) {
+                    TraceLog("DEBUG: ",
+                             " reinit node ",
+                             conf_change_req->server().address(),
+                             " to running state");
+                    node->node_state = NodeStateEnum::Running;
+                    node->next_log_index = 0;
+                    node->match_log_index = ety->id();
+                    node->address = conf_change_req->server().address();
+                  }
+                }
+              }
+              if (!node_exist) {
+                raft->nodes_.push_back(new_node);
+              }
+            }
+            break;
+          }
+          case eraftkv::ClusterConfigChangeType::RemoveServer: {
+            raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
+            raft->last_applied_idx_ = ety->id();
+            auto to_remove_serverid = conf_change_req->server().id();
+            for (auto iter = raft->nodes_.begin(); iter != raft->nodes_.end();
+                 iter++) {
+              if ((*iter)->id == to_remove_serverid &&
+                  conf_change_req->server().id() != raft->id_) {
+                (*iter)->node_state = NodeStateEnum::Down;
+              }
+            }
+            break;
+          }
+          default: {
+            raft->log_store_->PersisLogMetaState(raft->commit_idx_, ety->id());
+            raft->last_applied_idx_ = ety->id();
+            break;
+          }
+        }
+        std::mutex map_mutex;
+        {
+          std::lock_guard<std::mutex> lg(map_mutex);
+          if (ERaftKvServer::ready_cond_vars_[conf_change_req->op_count()] !=
+              nullptr) {
+            ERaftKvServer::ready_cond_vars_[conf_change_req->op_count()]
+                ->notify_one();
+          }
+        }
+        delete conf_change_req;
         break;
       }
+      default:
+        break;
     }
-    delete op_pair;
   }
   return EStatus::kOk;
 }

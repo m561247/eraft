@@ -82,7 +82,7 @@ RaftServer::RaftServer(RaftConfig raft_config,
            commit_idx_);
   for (auto n : raft_config.peer_address_map) {
     RaftNode* node = new RaftNode(n.first,
-                                  NodeStateEnum::Init,
+                                  NodeStateEnum::Running,
                                   0,
                                   this->log_store_->LastIndex() + 1,
                                   n.second);
@@ -107,27 +107,6 @@ RaftServer* RaftServer::RunMainLoop(RaftConfig raft_config,
   std::thread th(&RaftServer::RunCycle, svr);
   th.detach();
   return svr;
-}
-
-/**
- * @brief
- *
- * @param id
- * @param is_self
- * @return RaftNode*
- */
-RaftNode* RaftServer::JoinNode(int64_t id, bool is_self) {
-  return nullptr;
-}
-
-/**
- * @brief
- *
- * @param node
- * @return EStatus
- */
-EStatus RaftServer::RemoveNode(RaftNode* node) {
-  return EStatus::kOk;
 }
 
 /**
@@ -201,7 +180,7 @@ EStatus RaftServer::SendAppendEntries() {
   }
 
   for (auto& node : this->nodes_) {
-    if (node->id == this->id_) {
+    if (node->id == this->id_ || node->node_state == NodeStateEnum::Down) {
       continue;
     }
 
@@ -321,7 +300,7 @@ EStatus RaftServer::HandleRequestVoteReq(RaftNode* from_node,
  */
 EStatus RaftServer::SendHeartBeat() {
   for (auto node : this->nodes_) {
-    if (node->id == this->id_) {
+    if (node->id == this->id_ || node->node_state == NodeStateEnum::Down) {
       continue;
     }
 
@@ -535,6 +514,9 @@ EStatus RaftServer::HandleAppendEntriesResp(RaftNode* from_node,
     if (resp != nullptr) {
       if (resp->success()) {
         for (auto node : this->nodes_) {
+          if (node->node_state == NodeStateEnum::Down) {
+            continue;
+          }
           if (from_node->id == node->id) {
             node->match_log_index =
                 req->prev_log_index() + req->entries().size();
@@ -558,6 +540,9 @@ EStatus RaftServer::HandleAppendEntriesResp(RaftNode* from_node,
             }
           } else {
             for (auto node : this->nodes_) {
+              if (node->node_state == NodeStateEnum::Down) {
+                continue;
+              }
               if (from_node->id == node->id) {
                 node->next_log_index = resp->conflict_index();
                 for (int64_t i = resp->conflict_index();
@@ -612,6 +597,9 @@ bool RaftServer::MatchLog(int64_t term, int64_t index) {
 EStatus RaftServer::AdvanceCommitIndexForLeader() {
   std::vector<int64_t> match_idxs;
   for (auto node : this->nodes_) {
+    if (node->node_state == NodeStateEnum::Down) {
+      continue;
+    }
     match_idxs.push_back(node->match_log_index);
   }
   sort(match_idxs.begin(), match_idxs.end());
@@ -668,10 +656,48 @@ EStatus RaftServer::HandleApplyConfigChange(RaftNode*       from_node,
 /**
  * @brief
  *
- * @param ety
+ * @param payload
+ * @param new_log_index
+ * @param new_log_term
+ * @param is_success
  * @return EStatus
  */
-EStatus RaftServer::ProposeEntry(eraftkv::Entry* ety) {
+EStatus RaftServer::ProposeConfChange(std::string payload,
+                                      int64_t*    new_log_index,
+                                      int64_t*    new_log_term,
+                                      bool*       is_success) {
+  if (this->role_ != NodeRaftRoleEnum::Leader) {
+    *new_log_index = -1;
+    *new_log_term = -1;
+    *is_success = false;
+    return EStatus::kOk;
+  }
+
+  eraftkv::Entry* new_ety = new eraftkv::Entry();
+  new_ety->set_data(payload);
+  new_ety->set_id(this->log_store_->LastIndex() + 1);
+  new_ety->set_term(this->current_term_);
+  new_ety->set_e_type(eraftkv::EntryType::ConfChange);
+
+  this->log_store_->Append(new_ety);
+
+  for (auto node : this->nodes_) {
+    if (node->node_state == NodeStateEnum::Down) {
+      continue;
+    }
+    if (node->id == this->id_) {
+      node->match_log_index = new_ety->id();
+      node->next_log_index = node->match_log_index + 1;
+    }
+  }
+
+  SendAppendEntries();
+
+  *new_log_index = new_ety->id();
+  *new_log_term = new_ety->term();
+  *is_success = true;
+
+  delete new_ety;
   return EStatus::kOk;
 }
 
@@ -694,7 +720,6 @@ EStatus RaftServer::BecomeLeader() {
  * @return EStatus
  */
 EStatus RaftServer::BecomeFollower() {
-  // TODO: stop heartbeat
   this->role_ = NodeRaftRoleEnum::Follower;
   ResetRandomElectionTimeout();
   return EStatus::kOk;
@@ -757,7 +782,8 @@ EStatus RaftServer::ElectionStart(bool is_prevote) {
   this->store_->SaveRaftMeta(this, this->current_term_, this->voted_for_);
 
   for (auto node : this->nodes_) {
-    if (node->id == this->id_ || this->role_ == NodeRaftRoleEnum::Leader) {
+    if (node->id == this->id_ || this->role_ == NodeRaftRoleEnum::Leader ||
+        node->node_state == NodeStateEnum::Down) {
       continue;
     }
 

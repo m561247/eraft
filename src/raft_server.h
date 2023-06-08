@@ -87,23 +87,6 @@ class RaftServer {
              Network*   net);
 
   /**
-   * @brief
-   *
-   * @param id
-   * @param is_self
-   * @return RaftNode*
-   */
-  RaftNode* JoinNode(int64_t id, bool is_self);
-
-  /**
-   * @brief
-   *
-   * @param node
-   * @return EStatus
-   */
-  EStatus RemoveNode(RaftNode* node);
-
-  /**
    * @brief raft core cycle
    *
    * @return EStatus
@@ -198,10 +181,16 @@ class RaftServer {
   /**
    * @brief
    *
-   * @param ety
+   * @param payload
+   * @param new_log_index
+   * @param new_log_term
+   * @param is_success
    * @return EStatus
    */
-  EStatus ProposeEntry(eraftkv::Entry* ety);
+  EStatus ProposeConfChange(std::string payload,
+                            int64_t*    new_log_index,
+                            int64_t*    new_log_term,
+                            bool*       is_success);
 
 
   /**
